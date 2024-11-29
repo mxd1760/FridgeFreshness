@@ -1,6 +1,7 @@
 package com.marcusdoucette.fridgefreshness.views.screens
 
 
+import android.graphics.Bitmap
 import android.graphics.BitmapFactory
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.material3.Text
@@ -32,6 +33,8 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.graphics.asImageBitmap
+import androidx.compose.ui.graphics.painter.BitmapPainter
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
@@ -48,7 +51,11 @@ import com.marcusdoucette.fridgefreshness.MainActivity.Companion.DEFAULT_IMAGE
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun NewItemView(currentView:FFAppView, switchView: (FFAppView,Int?) -> Unit, submitItem:(FridgeItemData)->Unit, vm: NewItemViewModel = viewModel(), modifier: Modifier = Modifier) {
+fun NewItemView(currentView:FFAppView,
+                switchView: (FFAppView,Int?) -> Unit,
+                submitItem:(FridgeItemData)->Unit,
+                vm: NewItemViewModel = viewModel(),
+                modifier: Modifier = Modifier) {
 //    var text by remember { mutableStateOf("") }
 //    var selectedDate by remember { mutableStateOf(LocalDate.now()) }
     // image icon
@@ -59,6 +66,7 @@ fun NewItemView(currentView:FFAppView, switchView: (FFAppView,Int?) -> Unit, sub
             vm.getValidatedState(default_bitmap)?.let { submitItem(it) } //?: do something to show submission is invalid
             switchView(FFAppView.ITEM_LIST,null)
         }, name=uis.name ?: "",onNameChange={vm.changeName(it)},
+            bitmap=uis.image?:default_bitmap,
             selectedDate=uis.next_check ?: LocalDate.now(),onDateChange={vm.setDate(it)},
             switchView=switchView,modifier=modifier)
         FFAppView.CAMERA-> CameraView(switchView,modifier)
@@ -78,18 +86,16 @@ fun NewItemView(currentView:FFAppView, switchView: (FFAppView,Int?) -> Unit, sub
 }
 
 @Composable
-fun Defaults(onSubmit:()->Unit,name:String,onNameChange:(String)->Unit,selectedDate:LocalDate,onDateChange:(LocalDate)->Unit,switchView:(FFAppView,Int?)->Unit,modifier:Modifier=Modifier){
+fun Defaults(onSubmit:()->Unit, name:String, onNameChange:(String)->Unit, selectedDate:LocalDate, onDateChange:(LocalDate)->Unit, switchView:(FFAppView, Int?)->Unit,bitmap: Bitmap,modifier:Modifier=Modifier){
     Column(
         horizontalAlignment = Alignment.CenterHorizontally,
         modifier = modifier.fillMaxSize()
     ) {
-        Image(
-            painter = painterResource(id = R.drawable.ic_launcher_background),
+        Image(painter = BitmapPainter(bitmap.asImageBitmap()), contentDescription = "Image of ${name}",
             modifier = Modifier
                 .weight(1F)
                 .clip(CircleShape)
-                .clickable { switchView(FFAppView.CAMERA,null) },
-            contentDescription = "Food Image"
+                .clickable { switchView(FFAppView.CAMERA,null) }
         )
         Column(modifier = Modifier.weight(1f), horizontalAlignment = Alignment.CenterHorizontally) {
             // name

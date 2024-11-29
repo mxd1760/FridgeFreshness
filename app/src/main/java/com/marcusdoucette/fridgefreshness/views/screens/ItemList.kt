@@ -33,7 +33,9 @@ import java.time.LocalDate
 
 
 @Composable
-fun MainView(switchView:(FFAppView,Int?)->Unit, fridgeData:List<FridgeItemData>, modifier: Modifier = Modifier){
+fun MainView(switchView:(FFAppView,Int?)->Unit,
+             fridgeData:List<FridgeItemData>,
+             modifier: Modifier = Modifier){
     SetPortraitOrientationOnly()
     Column(
         modifier = modifier.fillMaxSize(),

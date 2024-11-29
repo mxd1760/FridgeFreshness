@@ -49,5 +49,12 @@ class NewItemViewModel : ViewModel() {
         }
     }
 
+    fun setBM(it: Bitmap){
+        _uiState.update{ currentState ->
+            currentState.copy(
+                image = it
+            )
+        }
+    }
 
 }
