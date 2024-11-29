@@ -33,6 +33,16 @@ class NewItemViewModel : ViewModel() {
         }
     }
 
+    fun resetState(){
+        _uiState.update{currentState->
+            currentState.copy(
+                name=null,
+                image=null,
+                next_check=null
+            )
+        }
+    }
+
     fun changeName(it: String) {
         _uiState.update { currentState ->
             currentState.copy(

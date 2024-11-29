@@ -64,6 +64,7 @@ fun NewItemView(currentView:FFAppView,
     when (currentView){
         FFAppView.NEW_ITEM-> Defaults(onSubmit = {
             vm.getValidatedState(default_bitmap)?.let { submitItem(it) } //?: do something to show submission is invalid
+            vm.resetState()
             switchView(FFAppView.ITEM_LIST,null)
         }, name=uis.name ?: "",onNameChange={vm.changeName(it)},
             bitmap=uis.image?:default_bitmap,
@@ -94,7 +95,6 @@ fun Defaults(onSubmit:()->Unit, name:String, onNameChange:(String)->Unit, select
         Image(painter = BitmapPainter(bitmap.asImageBitmap()), contentDescription = "Image of ${name}",
             modifier = Modifier
                 .weight(1F)
-                .clip(CircleShape)
                 .clickable { switchView(FFAppView.CAMERA,null) }
         )
         Column(modifier = Modifier.weight(1f), horizontalAlignment = Alignment.CenterHorizontally) {
