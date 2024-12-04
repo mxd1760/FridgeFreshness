@@ -1,12 +1,13 @@
 package com.marcusdoucette.fridgefreshness
 
+import android.Manifest
 import android.app.Activity
 import android.content.pm.ActivityInfo
 import android.content.pm.PackageManager
-import android.os.Bundle
-import android.Manifest
+import android.content.res.Resources
 import android.graphics.Bitmap
 import android.graphics.BitmapFactory
+import android.os.Bundle
 import android.util.Log
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
@@ -28,7 +29,18 @@ import com.marcusdoucette.fridgefreshness.ui.theme.FridgeFreshnessTheme
 import com.marcusdoucette.fridgefreshness.views.screens.MainView
 import com.marcusdoucette.fridgefreshness.views.screens.NewItemView
 import com.marcusdoucette.fridgefreshness.views.screens.SingleItemView
+import kotlinx.serialization.KSerializer
+import kotlinx.serialization.Serializable
+import kotlinx.serialization.Serializer
+import kotlinx.serialization.encodeToString
+import kotlinx.serialization.encoding.Decoder
+import kotlinx.serialization.encoding.Encoder
+import kotlinx.serialization.json.Json
+import java.io.ByteArrayOutputStream
+import java.io.File
 import java.time.LocalDate
+import java.time.format.DateTimeFormatter
+import java.util.Base64
 
 enum class Freshness {
     GOOD_TO_GO,
@@ -43,11 +55,49 @@ enum class FFAppView {
     ITEM,
 }
 
+
+@Serializer(forClass=Bitmap::class)
+object BitmapSerializer: KSerializer<Bitmap> {
+    override fun serialize(encoder: Encoder, value:Bitmap){
+        val stream = ByteArrayOutputStream()
+        value.compress(Bitmap.CompressFormat.PNG, 100, stream)
+        val bytes = stream.toByteArray()
+        encoder.encodeString(Base64.getEncoder().encodeToString(bytes))
+    }
+
+    override fun deserialize(decoder: Decoder): Bitmap{
+        val string = decoder.decodeString()
+        val bytes = Base64.getDecoder().decode(string)
+        val ans =  BitmapFactory.decodeByteArray(bytes,0,bytes.size)?:
+            BitmapFactory.decodeResource(Resources.getSystem(), MainActivity.DEFAULT_IMAGE)
+        Log.d(MainActivity.APP_NAME,"ans: ${ans}")
+        return ans?: run{
+            val conf = Bitmap.Config.ARGB_8888 // see other conf types
+            val bmp = Bitmap.createBitmap(100, 100, conf) // this creates a MUTABLE bitmap
+            return bmp
+        }
+    }
+}
+
+@Serializer(forClass=LocalDate::class)
+object DateSerializer: KSerializer<LocalDate>{
+    private val formatter = DateTimeFormatter.ISO_LOCAL_DATE
+    override fun serialize(encoder: Encoder, value: LocalDate){
+        encoder.encodeString(value.format(formatter))
+    }
+    override fun deserialize(decoder:Decoder): LocalDate{
+        return LocalDate.parse(decoder.decodeString(), formatter)
+    }
+}
+
+@Serializable
 data class FridgeItemData (
+    @Serializable(with=BitmapSerializer::class)
     val image: Bitmap,
     val name: String,
     //var last_checked:LocalDate,//TODO belongs in subclass for check after days
     //var freshness:Freshness,
+    @Serializable(with = DateSerializer::class)
     var next_reccomended_check: LocalDate, // TODO belongs in subclass for given date
 ):Comparable<FridgeItemData>{
     override fun compareTo(other:FridgeItemData):Int{
@@ -62,6 +112,7 @@ class MainActivity : ComponentActivity() {
         val APP_NAME = "Fridge Freshness"
         val ACCEPTABLE_DAYS = 10
         val DEFAULT_IMAGE:Int = R.drawable.diet
+        val SAVES_NAME = "ff.data"
     }
 
     val MOCK_DATA: ArrayList<FridgeItemData> = arrayListOf()
@@ -76,11 +127,23 @@ class MainActivity : ComponentActivity() {
             }
         }
 
+    fun save_data(){
+        val file = File(filesDir,SAVES_NAME)
+        val string = Json.encodeToString(MOCK_DATA)
+        file.writeText(string)
+    }
+    fun load_data(){
+        val file = File(filesDir,SAVES_NAME)
+        if (file.exists()){
+            MOCK_DATA.addAll(Json.decodeFromString<ArrayList<FridgeItemData>>(file.readText()))
+        }
+    }
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         enableEdgeToEdge()
         val image = BitmapFactory.decodeResource(resources,DEFAULT_IMAGE )
-        MOCK_DATA.addAll( // TODO Remove Me and replace with real data
+        /**MOCK_DATA.addAll( // TODO Remove Me and replace with real data
             arrayListOf(
                 FridgeItemData(
                     image,
@@ -167,7 +230,8 @@ class MainActivity : ComponentActivity() {
                     LocalDate.of(2024, 12, 7)
                 )
             )
-        )
+        )**/
+        load_data()
         //Log.d(APP_NAME,"Data before sort: $MOCK_DATA")
         MOCK_DATA.sort()
         //Log.d(APP_NAME,"Data after sort: $MOCK_DATA")
@@ -200,8 +264,8 @@ class MainActivity : ComponentActivity() {
                                 }
                             }
                         }
-
-                        Log.d(MainActivity.APP_NAME, current_view.toString())
+                        save_data()
+                        Log.d(APP_NAME, current_view.toString())
                     }
                     key(current_view) {
                         when (current_view) {
