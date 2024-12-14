@@ -25,6 +25,7 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
 import androidx.core.content.ContextCompat
+import com.marcusdoucette.fridgefreshness.data.FridgeItemData
 import com.marcusdoucette.fridgefreshness.ui.theme.FridgeFreshnessTheme
 import com.marcusdoucette.fridgefreshness.views.screens.MainView
 import com.marcusdoucette.fridgefreshness.views.screens.NewItemView
@@ -56,54 +57,6 @@ enum class FFAppView {
 }
 
 
-@Serializer(forClass=Bitmap::class)
-object BitmapSerializer: KSerializer<Bitmap> {
-    override fun serialize(encoder: Encoder, value:Bitmap){
-        val stream = ByteArrayOutputStream()
-        value.compress(Bitmap.CompressFormat.PNG, 100, stream)
-        val bytes = stream.toByteArray()
-        encoder.encodeString(Base64.getEncoder().encodeToString(bytes))
-    }
-
-    override fun deserialize(decoder: Decoder): Bitmap{
-        val string = decoder.decodeString()
-        val bytes = Base64.getDecoder().decode(string)
-        val ans =  BitmapFactory.decodeByteArray(bytes,0,bytes.size)?:
-            BitmapFactory.decodeResource(Resources.getSystem(), MainActivity.DEFAULT_IMAGE)
-        Log.d(MainActivity.APP_NAME,"ans: ${ans}")
-        return ans?: run{
-            val conf = Bitmap.Config.ARGB_8888 // see other conf types
-            val bmp = Bitmap.createBitmap(100, 100, conf) // this creates a MUTABLE bitmap
-            return bmp
-        }
-    }
-}
-
-@Serializer(forClass=LocalDate::class)
-object DateSerializer: KSerializer<LocalDate>{
-    private val formatter = DateTimeFormatter.ISO_LOCAL_DATE
-    override fun serialize(encoder: Encoder, value: LocalDate){
-        encoder.encodeString(value.format(formatter))
-    }
-    override fun deserialize(decoder:Decoder): LocalDate{
-        return LocalDate.parse(decoder.decodeString(), formatter)
-    }
-}
-
-@Serializable
-data class FridgeItemData (
-    @Serializable(with=BitmapSerializer::class)
-    val image: Bitmap,
-    val name: String,
-    //var last_checked:LocalDate,//TODO belongs in subclass for check after days
-    //var freshness:Freshness,
-    @Serializable(with = DateSerializer::class)
-    var next_reccomended_check: LocalDate, // TODO belongs in subclass for given date
-):Comparable<FridgeItemData>{
-    override fun compareTo(other:FridgeItemData):Int{
-        return next_reccomended_check.compareTo(other.next_reccomended_check)
-    }
-}
 
 
 class MainActivity : ComponentActivity() {

@@ -25,7 +25,7 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.marcusdoucette.fridgefreshness.FFAppView
-import com.marcusdoucette.fridgefreshness.FridgeItemData
+import com.marcusdoucette.fridgefreshness.data.FridgeItemData
 import com.marcusdoucette.fridgefreshness.MainActivity
 import com.marcusdoucette.fridgefreshness.MainActivity.Companion.ACCEPTABLE_DAYS
 import com.marcusdoucette.fridgefreshness.SetPortraitOrientationOnly

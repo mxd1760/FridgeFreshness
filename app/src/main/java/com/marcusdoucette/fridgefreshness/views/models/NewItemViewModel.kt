@@ -8,7 +8,7 @@ import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import java.time.LocalDate
-import com.marcusdoucette.fridgefreshness.FridgeItemData
+import com.marcusdoucette.fridgefreshness.data.FridgeItemData
 import com.marcusdoucette.fridgefreshness.R
 import kotlinx.coroutines.flow.update
 

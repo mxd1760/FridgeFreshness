@@ -16,7 +16,7 @@ import androidx.compose.ui.graphics.asImageBitmap
 import androidx.compose.ui.graphics.painter.BitmapPainter
 import androidx.compose.ui.unit.sp
 import com.marcusdoucette.fridgefreshness.FFAppView
-import com.marcusdoucette.fridgefreshness.FridgeItemData
+import com.marcusdoucette.fridgefreshness.data.FridgeItemData
 
 @Composable
 fun SingleItemView(switchView:(FFAppView, Int?)->Unit, itemData:FridgeItemData,removeItem:(FridgeItemData)->Unit,modifier: Modifier =Modifier){

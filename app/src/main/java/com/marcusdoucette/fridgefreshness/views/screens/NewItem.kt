@@ -38,7 +38,7 @@ import androidx.compose.ui.graphics.painter.BitmapPainter
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
-import com.marcusdoucette.fridgefreshness.FridgeItemData
+import com.marcusdoucette.fridgefreshness.data.FridgeItemData
 import com.marcusdoucette.fridgefreshness.R
 import com.marcusdoucette.fridgefreshness.views.models.NewItemViewModel
 import java.time.Instant
