@@ -4,7 +4,6 @@ This app lets you take photos of food that you put into the fridge along with a 
 
 ## How to run
 
- - Make sure you have android studio
- - Clone or download the repo files into a local repository that you can open from android studio
- - hit run
-
+ - download & open android studio
+ - paste the link to this repo into the "Repository URL" field of the "clone repository" option for starting a project with the git version control setting
+ - wait for it to load all the dependencies and then you will need to configure an android emulator (or plug in an android phone with debug permissions) and then hit the run button.
